@@ -1,0 +1,10 @@
+# dsh-notion-knowledge is an optional layer applied after dsh-web-app. The
+# empty root list is the package's one unconfigured state: the plugin loads so
+# its configuration remains inspectable, but contributes no model tools,
+# system-prompt text, or commands while the list is empty.
+- insert:
+    - id: notion-knowledge
+      name: dsh-notion-knowledge
+      inject: [credentials, commands, tools, systemPrompt]
+      config:
+        rootPages: []
