@@ -80,9 +80,8 @@ export function apply(ctx: Context, config: ResolvedConfig): () => void {
     assertActiveIndexBinding(store, roots, resolveToken)
   )
 
-  const disposeSearch = config.rootPages.length === 0
-    ? () => {}
-    : ctx.tools.register(defineTool({
+  if (config.rootPages.length > 0) {
+    ctx.tools.register(defineTool({
       name: 'notion_search',
       description: 'Search the local Notion knowledge index and return cited page references.',
       parameters: {
@@ -109,9 +108,7 @@ export function apply(ctx: Context, config: ResolvedConfig): () => void {
       },
     }))
 
-  const disposeRead = config.rootPages.length === 0
-    ? () => {}
-    : ctx.tools.register(defineTool({
+    ctx.tools.register(defineTool({
       name: 'notion_read',
       description: 'Read a bounded window from one locally indexed Notion page.',
       parameters: {
@@ -140,13 +137,12 @@ export function apply(ctx: Context, config: ResolvedConfig): () => void {
       },
     }))
 
-  const disposePrompt = config.rootPages.length === 0
-    ? () => {}
-    : ctx.systemPrompt.section({
+    ctx.systemPrompt.section({
       name: 'tool:notion-knowledge',
       order: 116,
       text: PROMPT_TEXT,
     })
+  }
 
   const commandRuntime = new NotionCommandRuntime({
     store,
@@ -154,12 +150,12 @@ export function apply(ctx: Context, config: ResolvedConfig): () => void {
     resolveToken,
     transportFactory: defaultNotionTransportFactory(config),
   })
-  const disposeSync = ctx.commands.register({
+  ctx.commands.register({
     name: 'notion-sync',
     description: 'Synchronize configured Notion pages into the local knowledge index.',
     handler: () => commandRuntime.runSync(),
   })
-  const disposeStatus = ctx.commands.register({
+  ctx.commands.register({
     name: 'notion-status',
     description: 'Show local Notion knowledge index status.',
     handler: () => commandRuntime.status(),
@@ -174,11 +170,6 @@ export function apply(ctx: Context, config: ResolvedConfig): () => void {
   }
 
   return () => {
-    disposeSearch()
-    disposeRead()
-    disposePrompt()
-    disposeSync()
-    disposeStatus()
     store.close()
   }
 }
