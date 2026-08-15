@@ -67,9 +67,9 @@ function staleAgeMinutes(binding: ActiveNotionBinding): number {
  *
  * @param ctx - Cordis context carrying the declared Harness services.
  * @param config - validated configuration.
- * @returns teardown disposer that closes the local index and unregisters tool/prompt contributions.
+ * @returns nothing; teardown is registered through the Cordis effect system.
  */
-export function apply(ctx: Context, config: ResolvedConfig): () => void {
+export function apply(ctx: Context, config: ResolvedConfig): void {
   const store = openIndexStore(config.indexPath)
   const roots = [...config.rootPages]
   const resolveToken = async (): Promise<string | undefined> => {
@@ -169,7 +169,7 @@ export function apply(ctx: Context, config: ResolvedConfig): () => void {
     }
   }
 
-  return () => {
+  ctx.effect(() => () => {
     store.close()
-  }
+  })
 }
