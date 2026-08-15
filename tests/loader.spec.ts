@@ -71,14 +71,8 @@ export const Config = target.plugin.Config
 export function apply(ctx, config) {
   target.observation.applies += 1
   target.observation.resolvedConfig = config
-  const disposePlugin = target.plugin.apply(ctx, config)
-  ctx.effect(() => () => {
-    try {
-      disposePlugin()
-    } finally {
-      target.observation.disposes += 1
-    }
-  })
+  target.plugin.apply(ctx, config)
+  ctx.effect(() => () => { target.observation.disposes += 1 })
 }
 `)
   const row = bundleRow()
